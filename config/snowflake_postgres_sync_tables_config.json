@@ -1,0 +1,1009 @@
+[ 
+    {
+    "entity_name": "carrier_v2",
+    "source_table": "carrier_vc",
+    "source_columns": [
+      "carrier_id","carrier_ai_id","carrier_name"
+    ],
+    "hash_columns": [
+      "carrier_id","carrier_ai_id","carrier_name"
+    ],
+    "key_columns": ["carrier_ai_id"],
+    "filter_cond": "QUALIFY ROW_NUMBER() OVER (PARTITION BY carrier_ai_id ORDER BY carrier_id) = 1",
+
+    "temp_table": "public.carrierstage_v2",
+    "temp_keys_table": "public.carrierstage_keys",
+    "target_table": "public.carrier_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "carrier_ai_id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+    {
+    "entity_name": "entityinformation_v2",
+    "source_table": "entity_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","corpflag_key","firstname","lastname","middleinitial","company","suffix","designation",
+      "prefix","title","nickname","dob","sigotherfirstname","sigotherlastname","sigotherdob","gender_key","taxid_id","taxid_type",
+      "anniversary","webuserid","webpassword","created","createdby","mrktngfx","exclmktg","status_key","assistant_fullname",
+      "assistant_phone","assistant_ext","assistant_email","residentstate","externalid","notes","address_prm_id","address_prm_type",
+      "address_prm_desc","address_prm_line1","address_prm_line2","address_prm_city","address_prm_state","address_prm_zip",
+      "address_prm_country","address_sec_id","address_sec_type","address_sec_desc","address_sec_line1","address_sec_line2",
+      "address_sec_city","address_sec_state","address_sec_zip","address_sec_country","email_prm_id","email_prm_address",
+      "email_sec_id","email_sec_address","prm_voice_id","prm_voice_phone","prm_voice_ext","prm_business_id","prm_business_phone",
+      "prm_business_ext","prm_fax_id","prm_fax_phone","prm_cell_id","prm_cell_phone","sec_voice_id","sec_voice_phone","sec_voice_ext",
+      "sec_business_id","sec_business_phone","sec_business_ext","sec_fax_id","sec_fax_phone","sec_cell_id","sec_cell_phone","agreement",
+      "primarycarrier","primarymarket_value","manager_userid","crmowner","default_org_id","organization","organization_parent",
+      "organization_grandparent","isagent","isprospect","isvendor","iscarrier","owner_is_team","codes","marketers",
+      "preferredcontactmethodcode","is_master","custom_fields","npn","crd","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","corpflag_key","firstname","lastname","middleinitial","company","suffix","designation",
+      "prefix","title","nickname","dob","sigotherfirstname","sigotherlastname","sigotherdob","gender_key","taxid_id","taxid_type",
+      "anniversary","webuserid","webpassword","created","createdby","mrktngfx","exclmktg","status_key","assistant_fullname",
+      "assistant_phone","assistant_ext","assistant_email","residentstate","externalid","notes","address_prm_id","address_prm_type",
+      "address_prm_desc","address_prm_line1","address_prm_line2","address_prm_city","address_prm_state","address_prm_zip",
+      "address_prm_country","address_sec_id","address_sec_type","address_sec_desc","address_sec_line1","address_sec_line2",
+      "address_sec_city","address_sec_state","address_sec_zip","address_sec_country","email_prm_id","email_prm_address",
+      "email_sec_id","email_sec_address","prm_voice_id","prm_voice_phone","prm_voice_ext","prm_business_id","prm_business_phone",
+      "prm_business_ext","prm_fax_id","prm_fax_phone","prm_cell_id","prm_cell_phone","sec_voice_id","sec_voice_phone","sec_voice_ext",
+      "sec_business_id","sec_business_phone","sec_business_ext","sec_fax_id","sec_fax_phone","sec_cell_id","sec_cell_phone","agreement",
+      "primarycarrier","primarymarket_value","manager_userid","crmowner","default_org_id","organization","organization_parent",
+      "organization_grandparent","isagent","isprospect","isvendor","iscarrier","owner_is_team","codes","marketers",
+      "preferredcontactmethodcode","is_master","custom_fields","npn","crd","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.entityinformationstage_v2",
+    "temp_keys_table": "public.entityinformationstage_keys",
+    "target_table": "public.entityinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "caseagentinformation_v2",
+    "source_table": "case_agent_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","entity_id","application_id","commission_level","percent",
+      "license_id","appointment_id","generaterequirement","hierarchy_detail_id","primary_agent_flag",
+      "crtdate","crttime","created","crtby","chgdate","chgtime","modified","chgby","is_master",
+      "datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","entity_id","application_id","commission_level","percent",
+      "license_id","appointment_id","generaterequirement","hierarchy_detail_id","primary_agent_flag",
+      "crtdate","crttime","created","crtby","chgdate","chgtime","modified","chgby","is_master",
+      "datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.caseagentinformationstage_v2",
+    "temp_keys_table": "public.caseagentinformationstage_keys",
+    "target_table": "public.caseagentinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "entityhierarchyinformation_v2",
+    "source_table": "entity_hierarchy_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","hierarchy_master_id","entity_id","parentid",
+      "hierarchytierid","start_date","end_date","corpflag","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","hierarchy_master_id","entity_id","parentid",
+      "hierarchytierid","start_date","end_date","corpflag","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.entityhierarchyinformationstage_v2",
+    "temp_keys_table": "public.entityhierarchyinformationstage_keys",
+    "target_table": "public.entityhierarchyinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "hierarchyinformation_v2",
+    "source_table": "hierarchy_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","name","description","start_date","end_date","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","name","description","start_date","end_date","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.hierarchyinformationstage_v2",
+    "temp_keys_table": "public.hierarchyinformationstage_keys",
+    "target_table": "public.hierarchyinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "hierarchylevelinformation_v2",
+    "source_table": "hierarchy_level_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","hierarchy_id","name","level","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","hierarchy_id","name","level","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.hierarchylevelinformationstage_v2",
+    "temp_keys_table": "public.hierarchylevelinformationstage_keys",
+    "target_table": "public.hierarchylevelinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "casemanager_v2",
+    "source_table": "case_manager_vc",
+    "source_columns": [
+      "case_manager_id","agency_id","case_manager_user_identifier","case_manager_first_name","case_manager_last_name","case_manager_fullname"
+    ],
+    "hash_columns": [
+      "case_manager_id","agency_id","case_manager_user_identifier","case_manager_first_name","case_manager_last_name","case_manager_fullname"
+    ],
+    "key_columns": ["case_manager_id"],
+    "filter_cond": "",
+
+    "temp_table": "public.casemanagerstage_v2",
+    "temp_keys_table": "public.casemanagerstage_keys",
+    "target_table": "public.casemanager_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "case_manager_id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "agentalerts_v2",
+    "source_table": "agent_alerts_vc",
+    "source_columns": [
+      "alert_id","case_id","created_timestamp","created_by_user_id","changed_timestamp","changed_by_user_id","inactivated_timestamp","inactivated_by_user_id","message","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "alert_id","case_id","created_timestamp","created_by_user_id","changed_timestamp","changed_by_user_id","inactivated_timestamp","inactivated_by_user_id","message","datalake_start_ts"
+    ],
+    "key_columns": ["alert_id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.agentalertsstage_v2",
+    "temp_keys_table": "public.agentalertsstage_keys",
+    "target_table": "public.agentalerts_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "alert_id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "caseinformation_v2",
+    "source_table": "case_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","organization_id","carrier_id","policynumber","firstname","lastname","middleinitial","namesuffixs","product_id","line1","line2","line3","city","state_statecode","zip","state_countrycode","dateofbirth","policydate","gender_key","age","cwaamt","deliveryduedate","deliveryorderdate","statusdate","primaryagentassignment_id","taxid_id","signedstate","signeddate","placeddate","driverslicense","driverslicensestate","homephone","workphone","faxnumber","casemanager","emailaddress","submitdate","benefit","prmdtl_habit_id","prmdtl_habit_description","prmdtl_habitappliedfor_id","prmdtl_habitappliedfor_description","crtdate","crttime","created","crtby","chgdate","chgtime","modified","chgby","ga","reviewdate","faceamount","prmdtl_refunddate","addappdtl_primbeneficiary","addappdtl_primbenrelation","addappdtl_contbeneficiary","addappdtl_contbenrelation","addappdtl_owner","addappdtl_ownerrelation","addappdtl_replaceexisting","addappdtl_carrierandplan","addappdtl_replamount","addappdtl_replpurpose","addappdtl_purposeofins","addappdtl_priorgroup","addappdtl_applyingforhippa","addappdtl_notes","addappdtl_owneraddress_line1","addappdtl_owneraddress_line2","addappdtl_owneraddress_city","addappdtl_owneraddress_state","addappdtl_owneraddress_zip","prmdtl_mode_key","prmdtl_carrierclass_key","prmdtl_carrierclass_description","prmdtl_carrierclassappliedfor_key","prmdtl_carrierclassappliedfor_description","prmdtl_modalpremium","prmdtl_waivepolicyfee","prmdtl_excesspremium","prmdtl_annualpremium","prmdtl_tablerating","prmdtl_tableratingpercentage","prmdtl_flatextraamount","prmdtl_flatextraduration","prmdtl_basepremium","prmdtl_commspecialrider","prmdtl_commpolicyfee","prmdtl_commspecialfee","prmdtl_commonetimefee","prmdtl_policyfee","prmdtl_policyfeecomm","prmdtl_initialpremium","prmdtl_targetpremium","prmdtl_specialrider","prmdtl_specialfee","prmdtl_onetimefee","prmdtl_receiveddate","prmdtl_notes","prmdtl_modalfactor","prmdtl_dumpinlumpsum","prmdtl_paymentmethod_id","prmdtl_ten_35_exchange","payoutamount","basebenefit","organization","organization_parent","organization_grandparent","primagent_corpflag_key","primagent_first_name","primagent_last_name","primagent_dob","codes","is_master","carrier_ai_id","carrier_name","product_ai_id","product_name","plan_type_id","custom_fields","life_deathbenefitoption","annuity_type","annuity_deferredoptiontype","singleorjoint","annuity_certainperiod","annuity_jntsurvivorpct","annuity_interestrateappliedfor","annuity_interestrateissued","annuity_qualifiedfunds","annuity_qualifiedfundstype","annuity_surrnderexpirationdate","annuity_firstpaymentdate","annuity_ratelockdate","annuity_costbasis","annuity_ratedage","annuity_illustrationdate","annuity_annuitizationage","disability_monthlybenefit","disability_eliminationperiod","disability_benefitperiod","disability_occupationclass","disability_occupation","disability_income","ltc_nursinghomebenefit","ltc_nursinghomeeliminationperiod","ltc_nursinghomebenefitperiod","ltc_nursinghomefrequency","ltc_nursingpremiumpayouttype","ltc_homebenefitamount","ltc_homeeliminationperiod","ltc_homebenefitperiod","ltc_homebenefitfrequency","ltc_homepercent","ltc_homepremiumpayouttype","ltc_discounttype","ltc_discountamount","ltc_inflationoption","ltc_inflationamount","ltc_preferredhealthdiscount","commission_totalestimate1styear","commission_netestimate1styear","commission_totalactual1styear","commission_netactual1styear","first_year_payments","total_payments","application_status_id","application_status","plan_status_id","plan_status","plan_termination_date","application_group_id","product_variation_name","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","organization_id","carrier_id","policynumber","firstname","lastname","middleinitial","namesuffixs","product_id","line1","line2","line3","city","state_statecode","zip","state_countrycode","dateofbirth","policydate","gender_key","age","cwaamt","deliveryduedate","deliveryorderdate","statusdate","primaryagentassignment_id","taxid_id","signedstate","signeddate","placeddate","driverslicense","driverslicensestate","homephone","workphone","faxnumber","casemanager","emailaddress","submitdate","benefit","prmdtl_habit_id","prmdtl_habit_description","prmdtl_habitappliedfor_id","prmdtl_habitappliedfor_description","crtdate","crttime","created","crtby","chgdate","chgtime","modified","chgby","ga","reviewdate","faceamount","prmdtl_refunddate","addappdtl_primbeneficiary","addappdtl_primbenrelation","addappdtl_contbeneficiary","addappdtl_contbenrelation","addappdtl_owner","addappdtl_ownerrelation","addappdtl_replaceexisting","addappdtl_carrierandplan","addappdtl_replamount","addappdtl_replpurpose","addappdtl_purposeofins","addappdtl_priorgroup","addappdtl_applyingforhippa","addappdtl_notes","addappdtl_owneraddress_line1","addappdtl_owneraddress_line2","addappdtl_owneraddress_city","addappdtl_owneraddress_state","addappdtl_owneraddress_zip","prmdtl_mode_key","prmdtl_carrierclass_key","prmdtl_carrierclass_description","prmdtl_carrierclassappliedfor_key","prmdtl_carrierclassappliedfor_description","prmdtl_modalpremium","prmdtl_waivepolicyfee","prmdtl_excesspremium","prmdtl_annualpremium","prmdtl_tablerating","prmdtl_tableratingpercentage","prmdtl_flatextraamount","prmdtl_flatextraduration","prmdtl_basepremium","prmdtl_commspecialrider","prmdtl_commpolicyfee","prmdtl_commspecialfee","prmdtl_commonetimefee","prmdtl_policyfee","prmdtl_policyfeecomm","prmdtl_initialpremium","prmdtl_targetpremium","prmdtl_specialrider","prmdtl_specialfee","prmdtl_onetimefee","prmdtl_receiveddate","prmdtl_notes","prmdtl_modalfactor","prmdtl_dumpinlumpsum","prmdtl_paymentmethod_id","prmdtl_ten_35_exchange","payoutamount","basebenefit","organization","organization_parent","organization_grandparent","primagent_corpflag_key","primagent_first_name","primagent_last_name","primagent_dob","codes","is_master","carrier_ai_id","carrier_name","product_ai_id","product_name","plan_type_id","custom_fields","life_deathbenefitoption","annuity_type","annuity_deferredoptiontype","singleorjoint","annuity_certainperiod","annuity_jntsurvivorpct","annuity_interestrateappliedfor","annuity_interestrateissued","annuity_qualifiedfunds","annuity_qualifiedfundstype","annuity_surrnderexpirationdate","annuity_firstpaymentdate","annuity_ratelockdate","annuity_costbasis","annuity_ratedage","annuity_illustrationdate","annuity_annuitizationage","disability_monthlybenefit","disability_eliminationperiod","disability_benefitperiod","disability_occupationclass","disability_occupation","disability_income","ltc_nursinghomebenefit","ltc_nursinghomeeliminationperiod","ltc_nursinghomebenefitperiod","ltc_nursinghomefrequency","ltc_nursingpremiumpayouttype","ltc_homebenefitamount","ltc_homeeliminationperiod","ltc_homebenefitperiod","ltc_homebenefitfrequency","ltc_homepercent","ltc_homepremiumpayouttype","ltc_discounttype","ltc_discountamount","ltc_inflationoption","ltc_inflationamount","ltc_preferredhealthdiscount","commission_totalestimate1styear","commission_netestimate1styear","commission_totalactual1styear","commission_netactual1styear","first_year_payments","total_payments","application_status_id","application_status","plan_status_id","plan_status","plan_termination_date","application_group_id","product_variation_name","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.caseinformationstage_v2",
+    "temp_keys_table": "public.caseinformationstage_keys",
+    "target_table": "public.caseinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "appointmentinformation_v2",
+    "source_table": "appointment_information_vc",
+    "source_columns": [
+      "group_id","customer_id","agentid","appointmentid","id","appointmentcarrier","appointmentnumber","appointmenteffective","appointmentexpires","appointmentstatus","appointmentcorpflag","appointmentallstates","apptstateseffectiveexpires","appointmentalllobs","appointmentallvarlobs","appointmentlobsvlobs","note","is_master","custom_fields","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","agentid","appointmentid","id","appointmentcarrier","appointmentnumber","appointmenteffective","appointmentexpires","appointmentstatus","appointmentcorpflag","appointmentallstates","apptstateseffectiveexpires","appointmentalllobs","appointmentallvarlobs","appointmentlobsvlobs","note","is_master","custom_fields","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    
+    "temp_table": "public.appointmentinformationstage_v2",
+    "temp_keys_table": "public.appointmentinformationstage_keys",
+    "target_table": "public.appointmentinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "appointmentid": "float" },   
+
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "applicationstatusinformation_v2",
+    "source_table": "app_status_information_vc",
+    "source_columns": [
+      "group_id","id","customer_id","application_type_id","application_type_description","application_category_id","application_category_description","hidden_flag","use_for_search_flag","description","original_id","original_description","modified","modified_formatted","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","id","customer_id","application_type_id","application_type_description","application_category_id","application_category_description","hidden_flag","use_for_search_flag","description","original_id","original_description","modified","modified_formatted","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    
+    "temp_table": "public.applicationstatusinformationstage_v2",
+    "temp_keys_table": "public.applicationstatusinformationstage_keys",
+    "target_table": "public.applicationstatusinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "entitystatus_v2",
+    "source_table": "entity_status_vc",
+    "source_columns": [
+      "entity_status_key",
+      "entity_status_description",
+      "datalake_start_ts"
+    ],
+    "hash_columns": [
+      "entity_status_key",
+      "entity_status_description",
+      "datalake_start_ts"
+    ],
+    "key_columns": ["entity_status_key"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.entitystatusstage_v2",
+    "temp_keys_table": "public.entitystatusstage_keys",
+    "target_table": "public.entitystatus_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "entity_status_key": "string" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "userlist_v2",
+    "source_table": "get_user_list_vc",
+    "source_columns": [
+      "customer_id","crm_guid","first_name","last_name","active_flag","team","business_unit_guid","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "customer_id","crm_guid","first_name","last_name","active_flag","team","business_unit_guid","datalake_start_ts"
+    ],
+    "key_columns": ["crm_guid"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    
+    "temp_table": "public.userliststage_v2",
+    "temp_keys_table": "public.userliststage_keys",
+    "target_table": "public.userlist_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "crm_guid": "string" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "cdcodeinformation_v2",
+    "source_table": "cdcode_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","family_id","name","description","active_date","inactive_date","applytotype_id","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","family_id","name","description","active_date","inactive_date","applytotype_id","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.cdcodeinformationstage_v2",
+    "temp_keys_table": "public.cdcodeinformationstage_keys",
+    "target_table": "public.cdcodeinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "licenseinformation_v2",
+    "source_table": "license_information_vc",
+    "source_columns": [
+      "group_id","customer_id","agentid","licenseid","id","licensestate","licenseeffective","licenseexpires","licensenumber","licensevarnumber","licensestatus","licensecorpflag","licensealllobs","licenseallvarlobs","licenselobsvlobs","crtdate","crttime","created","crtby","chgdate","chgtime","modified","chgby","note","is_master","custom_fields","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","agentid","licenseid","id","licensestate","licenseeffective","licenseexpires","licensenumber","licensevarnumber","licensestatus","licensecorpflag","licensealllobs","licenseallvarlobs","licenselobsvlobs","crtdate","crttime","created","crtby","chgdate","chgtime","modified","chgby","note","is_master","custom_fields","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.licenseinformationstage_v2",
+    "temp_keys_table": "public.licenseinformationstage_keys",
+    "target_table": "public.licenseinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "codefamilyinformation_v2",
+    "source_table": "code_family_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","name","description","active_date","inactive_date","overlap","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","name","description","active_date","inactive_date","overlap","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.codefamilyinformationstage_v2",
+    "temp_keys_table": "public.codefamilyinformationstage_keys",
+    "target_table": "public.codefamilyinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "newextinformationstage_v2",
+    "source_table": "newext_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","application_id","firstname","lastname","middleinitial","suffix","dateofbirth","gender_key","issueage","taxid_id","homephone","workphone","faxnumber","addressline1","addressline2","addressline3","addresscity","addressstate","addresszip","addresscountry","emailaddress","faceamount","benefit","tablerating","tableratingpercentage","flatextramount","flatextraduration","habit_id","carrierclass_key","created","crtby","chgdate","chgtime","modified","chgby","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","application_id","firstname","lastname","middleinitial","suffix","dateofbirth","gender_key","issueage","taxid_id","homephone","workphone","faxnumber","addressline1","addressline2","addressline3","addresscity","addressstate","addresszip","addresscountry","emailaddress","faceamount","benefit","tablerating","tableratingpercentage","flatextramount","flatextraduration","habit_id","carrierclass_key","created","crtby","chgdate","chgtime","modified","chgby","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.newextinformationstage_v2",
+    "temp_keys_table": "public.newextinformationstage_keys",
+    "target_table": "public.newextinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "productcategory_v2",
+    "source_table": "product_category_vc",
+    "source_columns": [
+      "product_category_id","product_category_description","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "product_category_id","product_category_description","datalake_start_ts"
+    ],
+    "key_columns": ["product_category_id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.productcategorystage_v2",
+    "temp_keys_table": "public.productcategorystage_keys",
+    "target_table": "public.productcategory_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "product_category_id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "plandim_v2",
+    "source_table": "plan_dim_vc",
+    "source_columns": [
+      "plan_id","plan_name","product_id","product_name","product_type","product_channel","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "plan_id","plan_name","product_id","product_name","product_type","product_channel","datalake_start_ts"
+    ],
+    "key_columns": ["plan_id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.plandimstage_v2",
+    "temp_keys_table": "public.plandimstage_keys",
+    "target_table": "public.plandim_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "plan_id": "string" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "ecpinformation",
+    "source_table": "ecp_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","case_id","user_id","first_name","last_name","percent","contact_id","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","case_id","user_id","first_name","last_name","percent","contact_id","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.ecpinformationstage_v2",
+    "temp_keys_table": "public.ecpinformationstage_keys",
+    "target_table": "public.ecpinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "agentcodebridge_v2",
+    "source_table": "agent_code_bridge_vc",
+    "source_columns": [
+      "agentid","codeid","familyid","code_name","family_name"
+    ],
+    "hash_columns": [
+      "agentid","codeid","familyid","code_name","family_name"
+    ],
+    "hash_default_values": {
+      "is_active": "TRUE"
+    },
+    "key_columns": ["agentid", "codeid"],
+    "filter_cond": "WHERE codeid IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.agentcodebridgestage_v2",
+    "temp_keys_table": "public.agentcodebridgestage_keys",
+    "target_table": "public.agentcodebridge_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "agentcodebridge_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for agent-code bridge"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "applicationcodebridge_v2",
+    "source_table": "application_code_bridge_vc",
+    "source_columns": [
+      "application_id","agent_id","code_id","family_id","code_name","family_name"
+    ],
+    "hash_columns": [
+      "application_id","agent_id","code_id","family_id","code_name","family_name"
+    ],
+    "hash_default_values": {
+      "is_active": "TRUE"
+    },
+    "key_columns": ["application_id", "agent_id", "code_id"],
+    "filter_cond": "WHERE code_id IS NOT NULL AND agent_id IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.applicationcodebridgestage_v2",
+    "temp_keys_table": "public.applicationcodebridgestage_keys",
+    "target_table": "public.applicationcodebridge_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "applicationcodebridge_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for application-code bridge"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "licenseappointmentstatus_v2",
+    "source_table": "license_appointment_status_vc",
+    "source_columns": [
+      "license_appointment_status_key","license_appointment_status_description","license_appointment_status_type"
+    ],
+    "hash_columns": [
+      "license_appointment_status_key","license_appointment_status_description","license_appointment_status_type"
+    ],
+    "hash_default_values": {
+      "is_active": "TRUE"
+    },
+    "key_columns": ["license_appointment_status_key", "license_appointment_status_type"],
+    "filter_cond": "WHERE license_appointment_status_key IS NOT NULL AND license_appointment_status_type IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.licenseappointmentstatusstage_v2",
+    "temp_keys_table": "public.licenseappointmentstatusstage_keys",
+    "target_table": "public.licenseappointmentstatus_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "licenseappointmentstatus_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for license-appointment status"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name":"casealerts_v2",
+    "source_table": "case_alerts_vc",
+    "source_columns": [
+      "case_id","alert_id","is_active_alert","alert_text","created_date","created_by_user_id","changed_date","changed_by_user_id","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "case_id","alert_id","is_active_alert","alert_text","created_date","created_by_user_id","changed_date","changed_by_user_id","datalake_start_ts" 
+    ],
+    "hash_default_values": {
+      "is_active": "TRUE"
+    },
+    "key_columns": ["case_id", "alert_id"],
+    "filter_cond": "WHERE datalake_start_ts > '{last_24_hours}' AND case_id IS NOT NULL AND alert_id IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.casealertsstage_v2",
+    "temp_keys_table": "public.casealertsstage_keys",
+    "target_table": "public.casealerts_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "casealerts_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for case-alerts"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "organizationcodebridge_v2",
+    "source_table": "organization_code_bridge_vc",
+    "source_columns": [
+      "organization_id","code_id","family_id","code_name","family_name"
+    ],
+    "hash_columns": [
+      "organization_id","code_id","family_id","code_name","family_name"
+    ],
+    "hash_default_values": {
+      "is_active": "TRUE"
+    },
+    "key_columns": ["organization_id", "family_id", "code_id"],
+    "filter_cond": "WHERE code_id IS NOT NULL AND family_id IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.organizationcodebridgestage_v2",
+    "temp_keys_table": "public.organizationcodebridgestage_keys",
+    "target_table": "public.organizationcodebridge_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "organizationcodebridge_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for organization-code bridge"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "caseriderinformation_v2",
+    "source_table": "case_rider_information_vc",
+    "source_columns": [
+      "case_id","rider_name","rider_has_questions","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "case_id","rider_name","rider_has_questions","datalake_start_ts"  
+    ],
+    "hash_default_values": {
+      "is_active": "TRUE"
+    },
+    "key_columns": ["case_id", "rider_name","rider_has_questions"],
+    "filter_cond": "WHERE datalake_start_ts > '{last_24_hours}' AND case_id IS NOT NULL AND rider_name IS NOT NULL AND rider_has_questions IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.caseriderinformationstage_v2",
+    "temp_keys_table": "public.caseriderinformationstage_keys",
+    "target_table": "public.caseriderinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "caseriderinformation_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for case-rider information"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "caserequirementinformation_v2",
+    "source_table": "case_requirement_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","application_id","requirement_of","description","request_date","followup_date","received","received_formatted","carrier_received_date","requirement_status","requirement_note","status_change_date","created","created_formatted","crtby","modified","modified_formatted","chgby","insureds_number","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","application_id","requirement_of","description","request_date","followup_date","received","received_formatted","carrier_received_date","requirement_status","requirement_note","status_change_date","created","created_formatted","crtby","modified","modified_formatted","chgby","insureds_number","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id", "application_id", "requirement_note"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.caserequirementinformationstage_v2",
+    "temp_keys_table": "public.caserequirementinformationstage_keys",
+    "target_table": "public.caserequirementinformation_v2",
+
+    "mode": "B1",
+    "chunksize": 10000,
+    "casts": {},
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "caserequirementinformation_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for case-requirement information"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "requirementrequiredof_v2",
+    "source_table": "requirement_required_of_vc",
+    "source_columns": [
+      "required_of_key","required_of_description","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "required_of_key","required_of_description","datalake_start_ts"
+    ],
+    "key_columns": ["required_of_key"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.requirementrequiredofstage_v2",
+    "temp_keys_table": "public.requirementrequiredofstage_keys",
+    "target_table": "public.requirementrequiredof_v2",
+
+    "mode": "B1",
+    "chunksize": 10000,
+    "casts": {},
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  }
+]

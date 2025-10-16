@@ -1,0 +1,207 @@
+[
+  {
+    "entity_name": "carrier_v2",
+    "source_table": "carrier_vc",
+    "source_columns": [
+      "carrier_id","carrier_ai_id","carrier_name"
+    ],
+    "hash_columns": [
+      "carrier_id","carrier_ai_id","carrier_name"
+    ],
+    "key_columns": ["carrier_ai_id"],
+    "filter_cond": "QUALIFY ROW_NUMBER() OVER (PARTITION BY carrier_ai_id ORDER BY carrier_id) = 1",
+
+    "temp_table": "public.carrierstage_v2",
+    "temp_keys_table": "public.carrier_keys",
+    "target_table": "public.carrier_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "carrier_ai_id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "composite_key_table_example",
+    "source_table": "composite_key_source_vc",
+    "source_columns": [
+      "group_id","customer_id","entity_id","application_id","commission_level","percent",
+      "license_id","appointment_id","created","modified","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","entity_id","application_id","commission_level","percent",
+      "license_id","appointment_id","created","modified","datalake_start_ts"
+    ],
+    "key_columns": ["group_id", "customer_id", "entity_id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+    "source_updated_at_expr": "datalake_start_ts",
+
+    "temp_table": "public.composite_key_stage",
+    "temp_keys_table": "public.composite_key_keys",
+    "target_table": "public.composite_key_table",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { 
+      "group_id": "float",
+      "customer_id": "float",
+      "entity_id": "float"
+    },   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "hash",
+      "source_columns": ["group_id", "customer_id", "entity_id"],
+      "column_name": "salesforce_id",
+      "column_type": "VARCHAR(32)",
+      "use_for_conflict": true,
+      "description": "Hash-based surrogate key for Salesforce integration"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "no_primary_key_table_example",
+    "source_table": "no_pk_source_vc",
+    "source_columns": [
+      "name","description","category","status","created_date","modified_date","notes"
+    ],
+    "hash_columns": [
+      "name","description","category","status","created_date","modified_date","notes"
+    ],
+    "key_columns": ["name", "category"],
+    "filter_cond": "where modified_date > '{last_24_hours}'",
+    "source_updated_at_expr": "modified_date",
+
+    "temp_table": "public.no_pk_stage",
+    "temp_keys_table": "public.no_pk_keys",
+    "target_table": "public.no_pk_table",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "no_pk_table_surrogate_seq",
+      "column_name": "record_id",
+      "column_type": "BIGINT",
+      "use_for_conflict": true,
+      "description": "Sequence-based surrogate key for records without natural primary key"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "unique_constraint_table_example",
+    "source_table": "unique_constraint_source_vc",
+    "source_columns": [
+      "email","first_name","last_name","phone","address","city","state","zip_code","registration_date"
+    ],
+    "hash_columns": [
+      "email","first_name","last_name","phone","address","city","state","zip_code","registration_date"
+    ],
+    "key_columns": ["email"],
+    "filter_cond": "where registration_date > '{last_24_hours}'",
+    "source_updated_at_expr": "registration_date",
+
+    "temp_table": "public.unique_constraint_stage",
+    "temp_keys_table": "public.unique_constraint_keys",
+    "target_table": "public.unique_constraint_table",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "hash",
+      "source_columns": ["email", "first_name", "last_name"],
+      "column_name": "customer_key",
+      "column_type": "VARCHAR(32)",
+      "use_for_conflict": false,
+      "description": "Additional surrogate key for customer identification while keeping email as primary conflict resolution"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
+    "entity_name": "agentcodebridge_v2",
+    "source_table": "agent_code_bridge_vc",
+    "source_columns": [
+      "agentid","codeid","familyid","code_name","family_name"
+    ],
+    "hash_columns": [
+      "agentid","codeid","familyid","code_name","family_name"
+    ],
+    "key_columns": ["agentid", "codeid"],
+    "filter_cond": "WHERE codeid IS NOT NULL",
+    "source_updated_at_expr": "",
+
+    "temp_table": "public.agentcodebridgestage_v2",
+    "temp_keys_table": "public.agentcodebridgestage_keys",
+    "target_table": "public.agentcodebridge_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": {},   
+
+    "surrogate_key": {
+      "enabled": true,
+      "method": "sequence",
+      "sequence_name": "agentcodebridge_v2_surrogate_seq",
+      "column_name": "id",
+      "column_type": "BIGINT",
+      "use_for_conflict": false,
+      "description": "Sequence-based surrogate key for agent-code bridge"
+    },
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  }
+]
