@@ -601,6 +601,37 @@
     }
   },
   {
+    "entity_name": "entitycommentinformation_v2",
+    "source_table": "entity_comment_information_vc",
+    "source_columns": [
+      "group_id","customer_id","id","entity_id","comment_module_id","comment_module_description","comment_category_id","comment_category_description","from_user_id","to_user_ids","confidential_flag","comment_status_id","comment_status_description","description","created","created_formatted","modified","modified_formatted","comment","is_master","datalake_start_ts"
+    ],
+    "hash_columns": [
+      "group_id","customer_id","id","entity_id","comment_module_id","comment_module_description","comment_category_id","comment_category_description","from_user_id","to_user_ids","confidential_flag","comment_status_id","comment_status_description","description","created","created_formatted","modified","modified_formatted","comment","is_master","datalake_start_ts"
+    ],
+    "key_columns": ["id"],
+    "filter_cond": "where datalake_start_ts > '{last_24_hours}'",
+
+    "temp_table": "public.entitycommentinformationstage_v2",
+    "temp_keys_table": "public.entitycommentinformationstage_keys",
+    "target_table": "public.entitycommentinformation_v2",
+
+    "mode": "B1",                     
+    "chunksize": 10000,               
+    "casts": { "id": "float" },   
+   
+    "bookkeeping": {
+      "has_lineage": true,
+      "is_active_col": "is_active",
+      "deleted_at_col": "deleted_at",
+      "created_on_col": "created_on",
+      "updated_on_col": "updated_on",
+      "last_seen_at_col": "last_seen_at",
+      "row_hash_col": "row_hash",
+      "source_updated_at_col": "source_updated_at"    
+    }
+  },
+  {
     "entity_name": "plandim_v2",
     "source_table": "plan_dim_vc",
     "source_columns": [
