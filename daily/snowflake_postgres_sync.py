@@ -24,16 +24,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 LOG_FILE_PATH = "logs/snowflake_postgress_sync_logs.log"
 
-# Create a per-run log file handler so each execution has a separate log artifact
-RUN_LOG_FILE_PATH = os.path.join(
-    "logs",
-    f"sync_run_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.log"
-)
-_run_handler = logging.FileHandler(RUN_LOG_FILE_PATH, mode="w", encoding="utf-8")
-_run_handler.setLevel(logging.INFO)
-_run_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-# Attach to root so all loggers contribute
-logging.getLogger().addHandler(_run_handler)
+# Initialize per-run logging per execution (not at import time)
+RUN_LOG_FILE_PATH = None
+_run_handler = None
+
+def setup_per_run_log_handler():
+    global RUN_LOG_FILE_PATH, _run_handler
+    RUN_LOG_FILE_PATH = os.path.join(
+        "logs",
+        f"sync_run_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.log"
+    )
+    _run_handler.setLevel(logging.INFO)
+    _run_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+    # Attach to root so all loggers contribute
+    logging.getLogger().addHandler(_run_handler)
 
 
 def tail_log_lines(path: str, max_lines: int = 200) -> str:
@@ -632,6 +636,8 @@ def sync_table(sf_conn, engine, cfg: dict, last_success_ts: str, is_recon: bool 
 
 # -------------------- Entrypoint ----------------------
 def main():
+    # Initialize fresh per-run log file for this execution
+    setup_per_run_log_handler()
     start_time = datetime.now(timezone.utc)
     logger.info(f"Job started at {start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
     had_error = False
@@ -665,8 +671,35 @@ def main():
             connect_args={"keepalives": 1, "keepalives_idle": 30, "keepalives_interval": 30, "keepalives_count": 5}
         )
 
-        # Watermark - Match v1: plain timestamp string (quoting handled at usage)
-        last_success_ts = (datetime.now(timezone.utc) - timedelta(hours=25)).strftime('%Y-%m-%d %H:%M:%S')
+        # Watermark - use latest successful job end time with overlap; fallback to now-25h
+        OVERLAP_HOURS = 1
+        JOB_ID = 5
+        with engine.connect() as conn:
+            row = conn.execute(
+                text(
+                    """
+                    SELECT ended_at
+                    FROM public.jobdetails
+                    WHERE job_id = :job_id
+                      AND is_success = true
+                    ORDER BY ended_at DESC
+                    LIMIT 1
+                    """
+                ),
+                {"job_id": JOB_ID}
+            ).fetchone()
+
+        if row and row[0]:
+            ended_at = row[0]
+            if getattr(ended_at, "tzinfo", None) is not None:
+                ended_at_utc = ended_at.astimezone(timezone.utc)
+            else:
+                ended_at_utc = ended_at.replace(tzinfo=timezone.utc)
+            last_success_ts = (ended_at_utc - timedelta(hours=OVERLAP_HOURS)).strftime('%Y-%m-%d %H:%M:%S')
+            logger.info(f"Watermark from jobdetails ended_at: {last_success_ts} (job_id {JOB_ID}, overlap {OVERLAP_HOURS}h)")
+        else:
+            last_success_ts = (datetime.now(timezone.utc) - timedelta(hours=25)).strftime('%Y-%m-%d %H:%M:%S')
+            logger.info(f"Watermark fallback: {last_success_ts} (now - 25h)")
 
         # Decide recon day
         with engine.connect() as conn:
@@ -701,14 +734,39 @@ def main():
         logger.info(
             f"Job ended at {end_time.strftime('%Y-%m-%d %H:%M:%S')} UTC; duration: {elapsed.total_seconds():.2f}s ({elapsed})"
         )
+        # Record job run in jobdetails for watermarking next day
+        try:
+            if 'engine' in locals() and engine is not None:
+                with engine.begin() as conn:
+                    conn.execute(
+                        text(
+                            """
+                            INSERT INTO public.jobdetails (job_id, started_at, ended_at, is_success)
+                            VALUES (:job_id, :started_at, :ended_at, :is_success)
+                            """
+                        ),
+                        {
+                            "job_id": 5,
+                            "started_at": start_time,
+                            "ended_at": end_time,
+                            "is_success": (not had_error),
+                        },
+                    )
+                logger.info("Inserted jobdetails row for job_id=5")
+            else:
+                logger.warning("Skipping jobdetails insert: Postgres engine not initialized.")
+        except Exception as joblog_exc:
+            logger.warning(f"Failed to insert jobdetails row: {joblog_exc}")
+
         # Email the full per-run log file after completion
         email_ok = send_run_log_email(start_time, end_time, had_error)
 
         # Detach and close the per-run handler before deleting the file (Windows file lock safety)
         try:
-            logging.getLogger().removeHandler(_run_handler)
-            _run_handler.flush()
-            _run_handler.close()
+            if _run_handler is not None:
+                logging.getLogger().removeHandler(_run_handler)
+                _run_handler.flush()
+                _run_handler.close()
         except Exception as close_exc:
             logger.warning(f"Failed to close per-run log handler: {close_exc}")
 
