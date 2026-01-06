@@ -11,6 +11,7 @@ from mail.send_email import send_email
 from datetime import datetime, timedelta, timezone
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
+from daily.sync_logging import SyncLogger
 
 # ---------------- Logging ----------------
 # Ensure logs directory exists before configuring logging
@@ -34,6 +35,7 @@ def setup_per_run_log_handler():
         "logs",
         f"sync_run_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.log"
     )
+    _run_handler = logging.FileHandler(RUN_LOG_FILE_PATH, mode="w", encoding="utf-8")
     _run_handler.setLevel(logging.INFO)
     _run_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
     # Attach to root so all loggers contribute
@@ -78,12 +80,29 @@ def send_run_log_email(start_time: datetime, end_time: datetime, had_error: bool
         f"Attached: per-run log file {os.path.basename(RUN_LOG_FILE_PATH)}\n"
     )
     try:
-        ok = send_email(["arjav@acedataanalytics.com"], subject, body, attachments=[RUN_LOG_FILE_PATH])
+        reports = []
+        try:
+            for fn in os.listdir("logs"):
+                if fn.startswith("sync_log_") and fn.endswith(".xlsx"):
+                    path = os.path.join("logs", fn)
+                    reports.append(path)
+        except Exception:
+            reports = []
+        attachments = [RUN_LOG_FILE_PATH] + reports
+        ok = send_email(["arjav@acedataanalytics.com"], subject, body, attachments=attachments)
         if ok:
+            try:
+                for p in reports:
+                    try:
+                        os.remove(p)
+                        logger.info(f"Deleted Excel report {os.path.basename(p)} after email send.")
+                    except Exception as del_exc:
+                        logger.warning(f"Unable to delete Excel report {os.path.basename(p)}: {del_exc}")
+            except Exception:
+                pass
             return True
-        else:
-            logger.error("Failed to send run log email: transport returned False")
-            return False
+        logger.error("Failed to send run log email: transport returned False")
+        return False
     except Exception as send_exc:
         logger.error(f"Failed to send run log email: {send_exc}")
         return False
@@ -595,8 +614,18 @@ def refresh_snapshot_from_target(engine, cfg: dict):
     logger.info(f"[{cfg['entity_name']}] Snapshot refreshed. rows_upserted={upserted}, rows_pruned={pruned}")
 
 # ---------------- Main per-entity sync ----------------
-def sync_table(sf_conn, engine, cfg: dict, last_success_ts: str, is_recon: bool = False):
+def sync_table(sf_conn, engine, cfg: dict, last_success_ts: str, logging_configs: list = None, is_recon: bool = False):
     mode = cfg.get("mode", "B1")
+
+    # Initialize logger
+    sync_logger = None
+    if logging_configs:
+        for log_cfg in logging_configs:
+            if log_cfg.get("source_table") == cfg.get("source_table") and \
+               log_cfg.get("target_table") == cfg.get("target_table"):
+                sync_logger = SyncLogger(engine, cfg, log_cfg)
+                logger.info(f"[{cfg['entity_name']}] Logging enabled.")
+                break
 
     # Setup surrogate key infrastructure
     create_surrogate_key_sequence(engine, cfg)
@@ -622,17 +651,31 @@ def sync_table(sf_conn, engine, cfg: dict, last_success_ts: str, is_recon: bool 
     if load_payload:
         df_payload = fetch_payload(sf_conn, cfg, last_success_ts)
         if not df_payload.empty:
+            if sync_logger:
+                sync_logger.log_fetched(df_payload)
+
             # No need to ensure staging table has surrogate key column since we handle it only in target
             load_payload_stage(engine, df_payload, cfg)
+
+            if sync_logger:
+                sync_logger.log_inserted_candidates()
+                sync_logger.log_upserted_candidates()
+
             upsert_stage_to_target(engine, cfg)
         else:
             logger.info(f"[{cfg['entity_name']}] No payload rows to upsert for this run.")
 
     # Soft delete anything missing today
+    if sync_logger:
+        sync_logger.log_deleted_candidates()
+
     soft_delete_missing(engine, cfg)
 
     # Snapshot refresh
     refresh_snapshot_from_target(engine, cfg)
+
+    if sync_logger:
+        sync_logger.save_report()
 
 # -------------------- Entrypoint ----------------------
 def main():
@@ -644,6 +687,15 @@ def main():
     try:
         with open('config/snowflake_postgres_sync_tables_config.json', 'r') as f:
             tables = json.load(f)
+
+        # Load logging config
+        logging_configs = []
+        if os.path.exists('config/logging_config.json'):
+            try:
+                with open('config/logging_config.json', 'r') as f:
+                    logging_configs = json.load(f)
+            except Exception as e:
+                logger.warning(f"Failed to load logging config: {e}")
 
         # Snowflake connection
         with open("config/snowflake-credentials.json", "r") as f:
@@ -714,7 +766,7 @@ def main():
             _t0 = datetime.now(timezone.utc)
             logger.info(f"=== Sync start: {cfg['entity_name']} ===")
             try:
-                sync_table(sf_conn, engine, cfg, last_success_ts, is_recon=recon)
+                sync_table(sf_conn, engine, cfg, last_success_ts, logging_configs=logging_configs, is_recon=recon)
             except Exception as e:
                 logger.error(f"Entity sync error [{cfg['entity_name']}]: {e}")
                 send_error_alert(f"Entity {cfg['entity_name']}", e)
